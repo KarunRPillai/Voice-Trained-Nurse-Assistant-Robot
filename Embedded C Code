@@ -1,0 +1,176 @@
+#include "F:\NARM\NARM.h"
+#include<lcd.c>
+#define ML1 PIN_B0
+#define ML2 PIN_B1
+#define MR1 PIN_B2
+#define MR2 PIN_B3
+#define V1 PIN_B5
+#define V2 PIN_B6
+#define V3 PIN_B7
+int16 IR1,IR2;
+int proximity;
+int voice_1 = 0;
+int voice_2 = 0;
+int nothing;
+void adc();
+void adc_channel();
+void front();
+void right();
+void left();
+void stop();
+void name();
+void need();
+void hotwater();
+void bedsheet();
+void food();
+void main()
+{
+  set_tris_B(0xf0);
+  adc();
+  lcd_init();
+  output_LOW(ML1);
+  output_LOW(ML2);
+  output_LOW(MR1);
+  output_LOW(MR2);
+  lcd_putc('\f');
+  while(1)
+{
+  adc_channel();
+  proximity = input_state(pin_B4);
+  voice_1 = input_state(V1);
+  voice_2 = input_state(V2);
+  nothing = input_state(V3);
+  lcd_putc('\f');
+If((IR1<3.5) && (IR2<3.5) && (proximity==1))
+{
+  front();
+}
+If((IR1<3.5) && (IR2<3.5) && (proximity==0))
+{
+  stop();
+}
+If((IR1<3.5) && (IR2>3.5) && (proximity==1))
+{
+  right();
+} 
+If((IR1<3.5) && (IR2>3.5) && (proximity==0))
+{
+  stop();
+} 
+If((IR1>3.5) && (IR2<3.5) && (proximity==1))
+{
+  left();
+}
+If((IR1>3.5) && (IR2<3.5) && (proximity==0))
+{
+  stop();
+}
+If((IR1>3.5) && (IR2>3.5) && (proximity>=1))
+{
+  stop();
+}
+If((IR1>3.5) && (IR2>3.5) && (voice_2 == 0) && (voice_1 == 0))
+{
+  need();
+}
+If((IR1>3.5) && (IR2>3.5) && (voice_2 == 0) && (voice_1 == 1))
+{
+  hotwater();
+}
+  If((IR1>3.5) && (IR2>3.5) && (voice_2 == 1) && (voice_1 == 0))
+{
+  food();
+}
+If((IR1>3.5) && (IR2>3.5) && (voice_2 == 1) && (voice_1 == 1))
+{
+  bedsheet();
+}
+}
+}
+void adc_channel()
+{
+  set_adc_channel(0);
+  delay_us(10);
+  IR1 = read_adc();
+  set_adc_channel(1);
+  delay_us(10);
+  IR2 = read_adc();
+}
+void adc()
+{
+  setup_adc_ports(ALL_ANALOG);
+  setup_adc(ADC_CLOCK_INTERNAL );
+}
+void front()
+{
+  output_High(ML1);
+  output_LOW(ML2);
+  output_High(MR1);
+  output_LOW(MR2);
+}
+void right()
+{ 
+  output_LOW(ML1);
+  output_LOW(ML2);
+  output_High(MR1);
+  output_LOW(MR2);
+}
+void left()
+{
+  output_High(ML1);
+  output_LOW(ML2);
+  output_LOW(MR1);
+  output_LOW(MR2);
+}
+void stop()
+{
+  output_LOW(ML1);
+  output_LOW(ML2);
+  output_LOW(MR1);
+  output_LOW(MR2);
+}
+void need()
+{
+  lcd_putc('\f');
+  lcd_gotoxy(2,1);
+  printf(lcd_putc,"PLEASE TELL ME");
+  lcd_gotoxy(3,2);
+  printf(lcd_putc,"WHAT_YOU_NEED");
+  delay_ms(50);
+}
+void hotwater()
+{
+  lcd_putc('\f');
+  lcd_gotoxy(7,1);
+  printf(lcd_putc,"NEED");
+  lcd_gotoxy(5,2);
+  printf(lcd_putc,"HOT_WATER");
+  delay_ms(50);
+}
+void food()
+{
+  lcd_putc('\f');
+  lcd_gotoxy(7,1);
+  printf(lcd_putc,"NEED");
+  lcd_gotoxy(7,2);
+  printf(lcd_putc,"FOOD");
+  delay_ms(50);
+}
+void bedsheet()
+{
+  lcd_putc('\f');
+  lcd_gotoxy(7,1);
+  printf(lcd_putc,"NEED");
+  lcd_gotoxy(4,2);
+  printf(lcd_putc,"BED_SHEET");
+  delay_ms(50);
+}
+void name()
+{
+  lcd_putc('\f');
+  lcd_gotoxy(2,1);
+  printf(lcd_putc,"MY NAME IS NARM");
+  lcd_gotoxy(1,2);
+  printf(lcd_putc,"I'M HERE TO HELP YOU");
+  delay_ms(50);
+}
